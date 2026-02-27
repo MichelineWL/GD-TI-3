@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://dvlyhuf4uyjqv"]
+
+[ext_resource type="Script" uid="uid://dy0gtownmaref" path="res://Player.gd" id="1_v6fml"]
+[ext_resource type="Texture2D" uid="uid://7vg2j1865jam" path="res://assets/kenney_platformercharacters/PNG/Female/Poses/female_idle.png" id="2_v6fml"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_v6fml"]
+
+[node name="Player" type="CharacterBody2D" unique_id=361213089]
+script = ExtResource("1_v6fml")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=993753756]
+texture = ExtResource("2_v6fml")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=377280354]
+shape = SubResource("RectangleShape2D_v6fml")
