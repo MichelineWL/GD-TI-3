@@ -197,3 +197,52 @@ sprite.texture = tex_walk1 if walk_anim_frame == 0 else tex_walk2
 
 6. Game Mechanic Explorer:  
    https://gamemechanicexplorer.com/
+
+
+
+   ==========
+
+## Tutorial 5 – Assets Creation & Integration
+
+Pada tutorial ini, dilakukan integrasi aset visual (spritesheet) dan audio ke dalam game. Fokus utamanya adalah menggunakan `AnimatedSprite2D` untuk animasi karakter dan mengimplementasikan objek interaktif baru dengan umpan balik suara.
+
+### Fitur Latihan Mandiri yang Diimplementasikan:
+1.  **Animated Player (Kenney Mini)**: Karakter utama kini menggunakan paket **Kenney Mini Characters** yang diatur dengan `AnimatedSprite2D`.
+2.  **Zombie Enemy (Interactive Asset)**: Objek baru berupa Zombie yang memiliki animasi `idle` dan dapat mendeteksi pemain.
+3.  **Sistem Menembak (Interaksi Tombol)**: Pemain dapat menembak (tekan **SPACE**) untuk membasmi Zombie.
+4.  **Zombie Spawner (Interaksi Tombol)**: Pemain dapat memunculkan Zombie baru secara acak (tekan **S**).
+5.  **Game Over UI & Replay**: Menyediakan layar "GAME OVER!" yang muncul saat pemain kalah, lengkap dengan tombol **Replay?** untuk merestart level.
+6.  **Audio BGM & SFX**: 
+    - **BGM**: `bg_musix.mp3` diputar otomatis dan tetap berjalan saat game pause.
+    - **SFX**: `game_over.wav` diputar sebagai efek suara saat pemain kalah.
+
+---
+
+## Penjelasan Implementasi Tutorial 5
+
+### 1. Animasi Karakter (AnimatedSprite2D)
+Menggunakan `AnimatedSprite2D` untuk mengelola state animasi (`idle`, `walk`, `jump`). Script `Player.gd` memanggil `.play()` berdasarkan gerakan.
+
+### 2. Objek Zombie & Interaksi
+Dibuat menggunakan `Area2D`. Memiliki dua mode interaksi:
+-   **Kena Peluru**: Zombie terhapus (`die()`) tanpa pause game.
+-   **Kena Pemain**: Memicu sinyal `player_caught` yang menghentikan game (pause) dan menampilkan UI.
+
+### 3. Sistem Menembak & Spawner
+-   **Menembak**: `Bullet.tscn` di-instantiate di depan arah pemain.
+-   **Spawner**: `Main.gd` menggunakan `ZombieScene.instantiate()` pada posisi acak saat tombol **S** ditekan.
+
+---
+
+## Aset yang Digunakan
+-   **Kenney Mini Characters** & **Platformer Characters** (CC0)
+-   **Musik**: `bg_musix.mp3`
+-   **Efek Suara**: `game_over.wav`
+
+---
+
+## Referensi
+1. Bg sound: https://www.kenney.nl/assets/mini-characters-1
+2. https://www.youtube.com/watch?v=7RwD9R66zLM&t=36s
+3. Game over sound - dibuat sendiri
+
