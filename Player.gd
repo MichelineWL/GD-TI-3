@@ -27,37 +27,23 @@ var last_right_tap: float = -1.0
 # ─── Crouch State ──────────────────────────────────────────────────────────────
 var is_crouching: bool = false
 
-# ─── Sprite References ─────────────────────────────────────────────────────────
-@onready var sprite: Sprite2D = $Sprite2D
-
-# Sprite textures for each state
-var tex_idle: Texture2D
-var tex_walk1: Texture2D
-var tex_walk2: Texture2D
-var tex_jump: Texture2D
-var tex_fall: Texture2D
-var tex_duck: Texture2D
-
-# Walk animation
-var walk_anim_timer: float = 0.0
-var walk_anim_frame: int = 0
-const WALK_ANIM_SPEED: float = 0.15  # seconds per frame
+# ─── Animation Reference ───────────────────────────────────────────────────────
+# Using a flexible reference to handle different possible node names in the tutorial
+@onready var animplayer: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
 
 func _ready() -> void:
-	tex_idle  = load("res://assets/kenney_platformercharacters/PNG/Female/Poses/female_idle.png")
-	tex_walk1 = load("res://assets/kenney_platformercharacters/PNG/Female/Poses/female_walk1.png")
-	tex_walk2 = load("res://assets/kenney_platformercharacters/PNG/Female/Poses/female_walk2.png")
-	tex_jump  = load("res://assets/kenney_platformercharacters/PNG/Female/Poses/female_jump.png")
-	tex_fall  = load("res://assets/kenney_platformercharacters/PNG/Female/Poses/female_fall.png")
-	tex_duck  = load("res://assets/kenney_platformercharacters/PNG/Female/Poses/female_duck.png")
-
+	if animplayer == null:
+		animplayer = get_node_or_null("AnimatedSprite")
+	
+	if animplayer == null:
+		push_warning("AnimatedSprite2D node not found! Please check your scene tree.")
 
 func _physics_process(delta: float) -> void:
 	_handle_dash_timers(delta)
 	_apply_gravity(delta)
 	_handle_jump()
 	_handle_crouch()
-	_detect_dash()  # selalu cek double-tap, bahkan saat sedang dash
+	_detect_dash()
 
 	if is_dashing:
 		velocity.x = dash_direction * dash_speed
@@ -66,18 +52,15 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 
-	# Reset jump count when landing
 	if is_on_floor():
 		jump_count = 0
 
-	_update_sprite(delta)
-
+	_update_animation()
 
 # ─── Gravity ───────────────────────────────────────────────────────────────────
 func _apply_gravity(delta: float) -> void:
 	if not is_dashing:
 		velocity.y += delta * gravity
-
 
 # ─── Jump (Double Jump) ────────────────────────────────────────────────────────
 func _handle_jump() -> void:
@@ -89,11 +72,9 @@ func _handle_jump() -> void:
 			velocity.y = jump_speed
 			jump_count += 1
 
-
 # ─── Crouch ────────────────────────────────────────────────────────────────────
 func _handle_crouch() -> void:
 	is_crouching = Input.is_action_pressed("ui_down") and is_on_floor()
-
 
 # ─── Dash Detection (double-tap) ─────────────────────────────────────────────
 func _detect_dash() -> void:
@@ -109,7 +90,6 @@ func _detect_dash() -> void:
 			_start_dash(1.0)
 		last_right_tap = time_now
 
-
 # ─── Horizontal Movement ──────────────────────────────────────────────────────
 func _handle_horizontal() -> void:
 	var speed: int = crouch_speed if is_crouching else walk_speed
@@ -121,15 +101,13 @@ func _handle_horizontal() -> void:
 	else:
 		velocity.x = 0
 
-
 # ─── Dash ──────────────────────────────────────────────────────────────────────
 func _start_dash(direction: float) -> void:
 	is_dashing = true
 	dash_direction = direction
 	dash_timer = dash_duration
 	dash_cooldown_timer = dash_cooldown
-	velocity.y = 0  # neutralize gravity during dash
-
+	velocity.y = 0
 
 func _handle_dash_timers(delta: float) -> void:
 	if dash_timer > 0.0:
@@ -140,33 +118,38 @@ func _handle_dash_timers(delta: float) -> void:
 	if dash_cooldown_timer > 0.0:
 		dash_cooldown_timer -= delta
 
+# ─── Animation Update ──────────────────────────────────────────────────────────
+func _update_animation() -> void:
+	if animplayer == null:
+		return
 
-# ─── Sprite Update ─────────────────────────────────────────────────────────────
-func _update_sprite(delta: float) -> void:
-	# Flip sprite based on horizontal direction
 	if velocity.x < 0:
-		sprite.flip_h = true
+		animplayer.flip_h = true
 	elif velocity.x > 0:
-		sprite.flip_h = false
+		animplayer.flip_h = false
 
-	# Determine and apply sprite state
+	var animation_name = "idle"
+	
 	if is_crouching:
-		sprite.texture = tex_duck
+		animation_name = "duck"
 	elif is_dashing:
-		# Use walk1 or walk2 alternating quickly to give a "dash blur" feel
-		sprite.texture = tex_walk2
+		animation_name = "walk right"
 	elif not is_on_floor():
 		if velocity.y < 0:
-			sprite.texture = tex_jump
+			animation_name = "jump"
 		else:
-			sprite.texture = tex_fall
+			animation_name = "fall"
 	elif abs(velocity.x) > 0:
-		# Animate walk cycle
-		walk_anim_timer += delta
-		if walk_anim_timer >= WALK_ANIM_SPEED:
-			walk_anim_timer = 0.0
-			walk_anim_frame = (walk_anim_frame + 1) % 2
-		sprite.texture = tex_walk1 if walk_anim_frame == 0 else tex_walk2
+		animation_name = "walk right"
 	else:
-		sprite.texture = tex_idle
-		walk_anim_timer = 0.0
+		animation_name = "idle"
+
+	if animplayer.animation != animation_name:
+		if animplayer.sprite_frames.has_animation(animation_name):
+			animplayer.play(animation_name)
+		else:
+			# Safety fallback logic
+			if abs(velocity.x) > 0:
+				animplayer.play("walk right")
+			else:
+				animplayer.play("idle")

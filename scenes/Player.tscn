@@ -1,15 +1,43 @@
 [gd_scene format=3 uid="uid://dvlyhuf4uyjqv"]
 
 [ext_resource type="Script" uid="uid://dy0gtownmaref" path="res://Player.gd" id="1_v6fml"]
-[ext_resource type="Texture2D" uid="uid://7vg2j1865jam" path="res://assets/kenney_platformercharacters/PNG/Female/Poses/female_idle.png" id="2_v6fml"]
+[ext_resource type="Texture2D" uid="uid://fx03121gj2lu" path="res://assets/player_tilesheet.png" id="2_v6fml"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3li8b"]
+atlas = ExtResource("2_v6fml")
+region = Rect2(0, 0, 80, 110)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mdl7e"]
+atlas = ExtResource("2_v6fml")
+region = Rect2(240, 110, 80, 110)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_qu4a1"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3li8b")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mdl7e")
+}],
+"loop": true,
+"name": &"jalan_kanan",
+"speed": 1.0
+}]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_v6fml"]
 
 [node name="Player" type="CharacterBody2D" unique_id=361213089]
 script = ExtResource("1_v6fml")
+SPEED = null
+JUMP_SPEED = null
+GRAVITY = null
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=993753756]
-texture = ExtResource("2_v6fml")
+[node name="Sprite2D" type="AnimatedSprite2D" parent="." unique_id=555249051]
+sprite_frames = SubResource("SpriteFrames_qu4a1")
+animation = &"jalan_kanan"
+autoplay = "jalan_kanan"
+frame_progress = 0.3326974
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=377280354]
 shape = SubResource("RectangleShape2D_v6fml")
